@@ -1,14 +1,16 @@
 from datetime import datetime
 from flask_wtf import Form
-from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField
-from wtforms.validators import DataRequired, AnyOf, URL
+import phonenumbers
+from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField, IntegerField
+from wtforms.validators import DataRequired, AnyOf, URL, ValidationError, Regexp, Length
+#from wtforms.fields import html5 as h5fields
 
 class ShowForm(Form):
-    artist_id = StringField(
-        'artist_id'
+    artist_id = IntegerField(
+        'artist_id', validators=[DataRequired()]
     )
-    venue_id = StringField(
-        'venue_id'
+    venue_id = IntegerField(
+        'venue_id', validators=[DataRequired()]
     )
     start_time = DateTimeField(
         'start_time',
@@ -126,7 +128,15 @@ class VenueForm(Form):
         'seeking_description'
     )
 
-
+def validate_phone(form, field):
+    print('validate_phone' + field.data)
+    raise ValidationError('Invalid phone number.')
+    try:
+        if not (phonenumbers.is_valid_number(field.data)):
+            print ('Invalid phone number')
+            raise ValidationError('Invalid phone number.')
+    except:
+        raise ValidationError('Invalid phone number.')
 
 class ArtistForm(Form):
     name = StringField(
@@ -193,8 +203,9 @@ class ArtistForm(Form):
     )
     phone = StringField(
         # TODO implement validation logic for phone 
-        'phone'
+        'phone', validators=[DataRequired()]
     )
+    
     image_link = StringField(
         'image_link'
     )
@@ -221,19 +232,19 @@ class ArtistForm(Form):
             ('Soul', 'Soul'),
             ('Other', 'Other'),
         ]
-     )
+    )
     facebook_link = StringField(
         # TODO implement enum restriction
-        'facebook_link', validators=[URL()]
-     )
+        'facebook_link', validators=[DataRequired(), URL()]
+    )
 
     website_link = StringField(
         'website_link'
-     )
+    )
 
     seeking_venue = BooleanField( 'seeking_venue' )
 
     seeking_description = StringField(
             'seeking_description'
-     )
+    )
 
